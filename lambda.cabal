@@ -1,0 +1,15 @@
+name:                lambda 
+version:             0.1.0.0
+synopsis:            Lambda Calculus Interpreter
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable main
+    hs-source-dirs:     src
+    main-is:            Main.hs
+    other-modules:      Lambda.Core , Lambda.Eval , Lambda.Parse
+    ghc-options:        -threaded -rtsopts -with-rtsopts=-N
+    build-depends:      base , unordered-containers >= 0.2 , parsec , mtl,  readline
+    default-language:   Haskell2010
+
+
