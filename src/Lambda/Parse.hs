@@ -33,8 +33,16 @@ idP = liftM2 (:) identFirst (many identRest)
         identRest  = identFirst <|> digitP
 
 binOpP :: Parser Val
-binOpP = do c <- oneOf "-*+/><"
-            return $ BinOp c
+binOpP = arith <|> isEq <|> logic
+  where arith = do c <- oneOf "-*+/><"
+                   return $ BinOp c
+        isEq = do c <- string "=="
+                  return $ BinOp 'e'
+        logic = do c <- oneOf "&|"
+                   char c
+                   case c of
+                     '&' -> return $ BinOp 'a'
+                     '|' -> return $ BinOp 'o'
 --- ### Value parsers
 
 symP :: Parser Val
@@ -93,12 +101,14 @@ rawExprP' = numP
 
 transformList :: [Val] -> [Val]
 transformList xs = transformH xs []
-  where transformH [] res = (reverse . (map fixApp) . (map fixParens) . (map fixAssign)) res 
+  where transformH [] res = (reverse . (map transformExpr)) res 
         transformH (x:xs) (BinOp c:v:res) = transformH xs $ (AppBinOp c v x) : res
         transformH ((BinOp c):xs) res = transformH xs ((BinOp c):res)
         transformH (x:xs) ((AppExp f args) : res) = transformH xs ((AppExp f (x:args)):res)
         transformH (x:xs) (f:res) = transformH xs ((AppExp f (x:[])):res)
         transformH (x:xs) [] = transformH xs (x:[])
+        
+        transformExpr = (flattenLambda . fixApp . fixParens . fixAssign)
 
         fixApp x = case x of 
                      Lambda args body -> Lambda args $ map fixApp body
@@ -120,6 +130,9 @@ transformList xs = transformH xs []
                      Assign v1 v2 -> Assign v1 (transformList v2)
                      Lambda args body -> Lambda args (transformList body)
                      _ -> x
+
+        flattenLambda (Lambda args [Lambda args' body]) = flattenLambda $ Lambda (args ++ args') body
+        flattenLambda x = x
 exprP :: Parser [Val]
 exprP = do vals <- between maybeSpaceP maybeSpaceP (rawExprP `sepEndBy` maybeSpaceP) <* eof
            return $ transformList vals
