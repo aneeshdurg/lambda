@@ -1,6 +1,8 @@
 # lambda
 A simple lambda calculus interpreter
 
+In the interest of saving time and effort I lifted a lot of template code from MP6 of cs421 - write a scheme interpreter. You might find a lot of comments pertaining to the assignment, that are irrelevent to this project. I am working on removing those, but am more interesting in getting this to work well first.
+
 ### Usage
 
 If you haven't installed stack:
