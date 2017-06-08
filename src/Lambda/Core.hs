@@ -3,8 +3,11 @@
 --- Given Code
 --- ==========
 
+{-# LANGUAGE DeriveGeneric #-}
 module Lambda.Core where
 
+import Generics.Deriving.Base (Generic)
+import Generics.Deriving.Eq (GEq, geq)
 import Prelude hiding (lookup)
 import Data.HashMap.Strict as H (HashMap, insert, lookup, empty, fromList)
 import Data.Typeable
@@ -26,7 +29,14 @@ data Val = Symbol String
          | AppExp Val [Val]
          | Assign Val [Val]
          | Void                               -- No value
-         deriving (Typeable, Eq)
+         deriving (Typeable, Generic)
+
+instance GEq Val
+instance Eq Val where
+  (==) (AppBinOp o x y) (AppBinOp o' x' y')
+    | o==o' && o `elem` ['+', '*'] = (x==x' && y==y') || (x==y' && y==x')
+
+  (==) x y = geq x y
 
 instance Show Val where
   show (Symbol sym)     = sym
