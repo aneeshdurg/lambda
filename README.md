@@ -77,6 +77,10 @@ y
 
 ### TODO:
 
-* Implement logical operators
-* Implement equality operator
+* ~~Implement logical operators~~
+* ~~Implement equality operator~~
+* Better show instances for types
+* Tuples
+* Pattern matching
+* User-defined data types
 * Various other things
